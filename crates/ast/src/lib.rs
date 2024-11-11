@@ -1,14 +1,24 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+pub struct Component {
+    pub elements: Vec<Element>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub enum Element {
+    Html(HtmlTag),
+    Block(CodeBlock),
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub struct HtmlTag {
+    pub tag: String,
+    pub attributes: Vec<Attribute>,
+    pub content: Vec<Element>,
+}
+
+pub struct Attribute {
+    pub name: String,
+    pub value: String,
+}
+
+pub struct CodeBlock {
+    pub is_async: bool,
+    pub content: String,
 }

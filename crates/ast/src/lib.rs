@@ -3,27 +3,39 @@ pub struct Component {
     pub elements: Vec<Element>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Element {
     Html(HtmlTag),
     Block(CodeBlock),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub enum HtmlContent {
+    Element(Element),
+    Text(String)
+}
+
+#[derive(Debug, Clone)]
 pub struct HtmlTag {
     pub tag: String,
     pub attributes: Vec<Attribute>,
-    pub content: Vec<Element>,
+    pub content: Vec<HtmlContent>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub enum TextOrCode {
+    Text(String),
+    Code(CodeBlock),
+}
+
+#[derive(Debug, Clone)]
 pub struct Attribute {
-    pub name: String,
-    pub value: String,
+    pub name: TextOrCode,
+    pub value: Option<TextOrCode>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CodeBlock {
-    pub is_async: bool,
-    pub content: String,
+    // pub is_async: bool,
+    pub content: Vec<Element>,
 }

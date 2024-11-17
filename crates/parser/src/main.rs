@@ -5,5 +5,9 @@ fn main() {
 <body>
     <h1>Yo.</h1>
     <a src=\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\">Click this</a>
+    {
+        println!(\"test\");
+        <p>More Html</p>
+    }
 </body>"));
 }

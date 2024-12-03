@@ -1,8 +1,24 @@
 use nom::{
-    branch::alt, bytes::complete::{is_not, tag, take_while1}, character::complete::{char, multispace0, one_of, space0, space1}, combinator::{opt, peek}, error::{Error, ErrorKind}, multi::{many0, many1, separated_list0}, sequence::{delimited, pair, preceded, terminated, tuple}, Err, IResult, InputLength
+    branch::alt,
+    bytes::complete::{is_not, tag, take_while1},
+    character::complete::{char, multispace0, one_of, space0, space1},
+    combinator::{opt, peek},
+    error::context,
+    multi::{many0, many1, separated_list0},
+    sequence::{delimited, pair, preceded, terminated, tuple},
+    InputLength,
 };
+use tracing::debug;
+
+type IResult<I, O> = nom::IResult<I, O, error::Error<I>>;
+use error::Error;
 
 use cogs_ast::{Attribute, CodeBlock, Component, Element, HtmlTag};
+// reexport for cogs crate
+#[doc(hidden)]
+pub use nom;
+
+pub mod error;
 
 pub fn parse_cog(input: &str) -> IResult<&str, Component> {
     let (input, elements) = parse_consecutive_proper_elements(input)?;
@@ -18,7 +34,7 @@ pub fn parse_consecutive_proper_elements(input: &str) -> IResult<&str, Vec<Eleme
 
 fn parse_element(input: &str) -> IResult<&str, Element> {
     let (input, _) = multispace0(input)?;
-    alt((parse_html, parse_code_block))(input)
+    alt((context("html", parse_html), context("code block", parse_code_block)))(input)
 }
 
 fn parse_proper_element(input: &str) -> IResult<&str, Element> {
@@ -27,7 +43,6 @@ fn parse_proper_element(input: &str) -> IResult<&str, Element> {
     // dbg!(&res);
     res
 }
-
 
 fn is_valid_tag_name_char(c: char) -> bool {
     c.is_alphanumeric() || c == '-'
@@ -53,7 +68,7 @@ fn parse_attribute(input: &str) -> IResult<&str, Attribute> {
     let (input, key) = take_while1(is_valid_attr_char)(input)?;
     let (input, value) = opt(preceded(
         tuple((tag("="), space0)),
-        delimited(tag("\""), is_not("\""), tag("\""))
+        delimited(tag("\""), is_not("\""), tag("\"")),
     ))(input)?;
 
     let mut resulting_value = None;
@@ -71,38 +86,32 @@ fn parse_attribute(input: &str) -> IResult<&str, Attribute> {
     ))
 }
 
-
 fn parse_attributes(input: &str) -> IResult<&str, Vec<Attribute>> {
-    let (input, attrs) = separated_list0(
-        pair(alt((char(','), char(' '))), space0),
-        parse_attribute,
-    )(input)?;
+    let (input, attrs) =
+        separated_list0(pair(alt((char(','), char(' '))), space0), parse_attribute)(input)?;
 
     let (input, _) = space0(input)?; // dump any trailing spaces
 
     // dbg!(&attrs);
 
-    Ok((
-        input,
-        attrs
-    ))
+    Ok((input, attrs))
 }
 
 fn parse_inside_html_opening_tag(input: &str) -> IResult<&str, HtmlTag> {
     let (input, tag) = parse_tag_name(input)?;
     // dbg!(&tag);
     let (input, _) = space0(input)?;
-    let (input, attributes) = parse_attributes(input)?;
+    let (input, attributes) = context("html attributes", parse_attributes)(input)?;
     // dbg!(&attributes);
 
     Ok((
         input,
-        HtmlTag{
+        HtmlTag {
             tag: tag.to_string(),
             attributes,
-            content: Vec::new()
-        }
-    ))    
+            content: Vec::new(),
+        },
+    ))
 }
 
 fn parse_html_opening_tag(input: &str) -> IResult<&str, HtmlTag> {
@@ -110,21 +119,18 @@ fn parse_html_opening_tag(input: &str) -> IResult<&str, HtmlTag> {
 
     // dbg!(&tag);
 
-    Ok((
-        input,
-        tag
-    ))
+    Ok((input, tag))
 }
 
 fn parse_html_closing_tag(input: &str) -> IResult<&str, &str> {
-    let (input, tag) = delimited(tag("</"), parse_tag_name, char('>'))(input)?;
+    let (input, tag) = delimited(
+        tag("</"),
+        context("html tag name", parse_tag_name),
+        char('>'),
+    )(input)?;
 
-    Ok((
-        input,
-        tag
-    ))
+    Ok((input, tag))
 }
-
 
 fn parse_text(input: &str) -> IResult<&str, Element> {
     // dbg!(&input);
@@ -132,17 +138,17 @@ fn parse_text(input: &str) -> IResult<&str, Element> {
     while index < input.len() {
         let current_slice = &input[index..];
 
-        
         if peek(parse_element)(current_slice).is_ok() {
             // dbg!(&current_slice);
             break;
         }
-        
-        if peek(parse_html_opening_tag)(current_slice).is_ok() ||
-           peek(parse_html_closing_tag)(current_slice).is_ok() ||
-           peek::<_, _, Error<&str>, _>(char('}'))(current_slice).is_ok(){
-                // dbg!(&current_slice);
-                break; // Stop if any of these parsers match
+
+        if peek(parse_html_opening_tag)(current_slice).is_ok()
+            || peek(parse_html_closing_tag)(current_slice).is_ok()
+            || peek::<_, _, Error<&str>, _>(char('}'))(current_slice).is_ok()
+        {
+            // dbg!(&current_slice);
+            break; // Stop if any of these parsers match
         }
 
         index += 1; // Increment to check the next character
@@ -150,7 +156,7 @@ fn parse_text(input: &str) -> IResult<&str, Element> {
 
     if input[0..index].is_empty() {
         // dbg!(&input[0..index]);
-        return Err(Err::Error(Error::new(input, ErrorKind::Eof)));
+        return Err(Error::eof(input));
     }
 
     // dbg!(&input[0..index]);
@@ -163,10 +169,7 @@ fn parse_html_contents(input: &str) -> IResult<&str, Vec<Element>> {
 
     // dbg!(&out);
 
-    Ok((
-        input,
-        out
-    ))
+    Ok((input, out))
 }
 
 fn parse_html(input: &str) -> IResult<&str, Element> {
@@ -177,14 +180,13 @@ fn parse_html(input: &str) -> IResult<&str, Element> {
 
     let (input, close_name) = parse_html_closing_tag(input)?;
     if htag.tag != close_name {
-        return Err(Err::Failure(Error::new(input, ErrorKind::Fail))); // Is there a way to give a custom error message?
+        return Err(Error::custom_failure(
+            input,
+            format!("expected closing tag `</{}>`, got `</{}>`", htag.tag, close_name),
+        ));
     }
 
-
-    Ok((
-        input,
-        Element::Html(htag)
-    ))
+    Ok((input, Element::Html(htag)))
 }
 
 /*
@@ -199,21 +201,16 @@ fn parse_code_until_interrupted(input: &str) -> IResult<&str, Element> {
 */
 
 fn parse_inside_code_block(input: &str) -> IResult<&str, Vec<Element>> {
-    println!("Attempting inside code block {input}");
+    debug!("Attempting inside code block {input}");
     let (input, elems) = parse_consecutive_proper_elements(input)?;
 
     dbg!(&elems);
-    Ok((
-        input,
-        elems
-    ))
-
+    Ok((input, elems))
 }
-
 
 fn parse_code_block(input: &str) -> IResult<&str, Element> {
     if input.chars().nth(0) == Some('{') {
-        println!("Attempting code block on {input}");
+        debug!("Attempting code block on {input}");
     }
     let (input, content) = delimited(
         char('{'),
@@ -225,7 +222,7 @@ fn parse_code_block(input: &str) -> IResult<&str, Element> {
         input,
         Element::Block(CodeBlock {
             // is_async: is_async.unwrap_or(false),
-            content: content
+            content,
         }),
     ))
 }

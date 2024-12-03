@@ -6,3 +6,38 @@ members = [
   "integrations/axum"
 ]
 resolver = "2"
+
+[workspace.dependencies]
+eyre = "0.6"
+tracing = "0.1"
+
+# crates/
+cogs_ast = { path = "crates/ast" }
+cogs_codegen = { path = "crates/codegen" }
+cogs_parser = { path = "crates/parser" }
+
+[package]
+name = "cogs"
+version = "0.1.0"
+edition = "2021"
+description = "Rust code blocks in HTML"
+
+[dependencies]
+# errors yay
+color-eyre = "0.6"
+eyre.workspace = true
+tracing.workspace = true
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-error = "0.2"
+
+cogs_ast.workspace = true
+cogs_codegen.workspace = true
+cogs_parser.workspace = true
+proptest = "1.5.0"
+insta = "1.41.1"
+ariadne = "0.5.0"
+
+# Test optimization
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3

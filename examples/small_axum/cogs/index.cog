@@ -1,4 +1,7 @@
-{ let random: u32 = rand::random(); }
+{
+  let random: u32 = rand::random();
+  let random_p: u8 = rand::random();
+}
 <html>
   <head>
     <title>cogs - small_to_console</title>

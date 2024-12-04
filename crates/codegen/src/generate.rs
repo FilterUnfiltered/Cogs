@@ -42,7 +42,7 @@ fn quoted(s: &str) -> String {
 impl Expression {
     fn append(&self, cx: &mut AppendContext) {
         match self {
-            Expression::Literal(literal) => push!(cx, "\"{}\"", literal),
+            Expression::Text(literal) => push!(cx, "\"{}\"", literal),
             Expression::Code(code) => cx.push_arg(code.trim().to_string()),
         }
     }

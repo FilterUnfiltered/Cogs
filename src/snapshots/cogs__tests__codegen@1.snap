@@ -1,0 +1,6 @@
+---
+source: src/tests.rs
+expression: "cogs_codegen::generate(&ast).unwrap()"
+snapshot_kind: text
+---
+not yet implemented

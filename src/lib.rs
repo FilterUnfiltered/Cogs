@@ -27,14 +27,37 @@ pub fn parse_cog(input: String, file: &str) -> eyre::Result<cogs_ast::Component>
 #[doc(hidden)]
 pub fn init_tracing() -> eyre::Result<()> {
     color_eyre::install()?;
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::builder()
-                .with_default_directive(LevelFilter::INFO.into())
-                .from_env_lossy(),
+    let registry = tracing_subscriber::registry().with(
+        tracing_subscriber::EnvFilter::builder()
+            .with_default_directive(LevelFilter::INFO.into())
+            .from_env_lossy(),
+    );
+    fn do_init<
+        R: tracing::Subscriber
+            + SubscriberExt
+            + for<'span> tracing_subscriber::registry::LookupSpan<'span>
+            + Into<tracing::Dispatch>
+            + Sync
+            + Send
+            + 'static,
+    >(
+        registry: R,
+    ) -> eyre::Result<()> {
+        tracing::subscriber::set_global_default(
+            registry
+                .with(tracing_error::ErrorLayer::default())
+                .with(tracing_subscriber::fmt::layer()),
         )
-        .with(tracing_error::ErrorLayer::default())
-        .with(tracing_subscriber::fmt::layer())
-        .try_init()?;
+        .map_err(Into::into)
+    }
+    #[cfg(feature = "tracy")]
+    {
+        do_init(registry.with(tracing_tracy::TracyLayer::default()))?;
+    }
+    #[cfg(not(feature = "tracy"))]
+    {
+        do_init(registry)?;
+    }
+
     Ok(())
 }

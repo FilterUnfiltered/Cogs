@@ -1,0 +1,79 @@
+---
+source: src/tests.rs
+expression: ast
+snapshot_kind: text
+---
+Component {
+    elements: [
+        Html(
+            HtmlTag {
+                tag: "body",
+                attributes: [],
+                content: [
+                    Html(
+                        HtmlTag {
+                            tag: "h1",
+                            attributes: [],
+                            content: [
+                                Text(
+                                    "Yo.",
+                                ),
+                            ],
+                        },
+                    ),
+                    Html(
+                        HtmlTag {
+                            tag: "a",
+                            attributes: [
+                                Attribute {
+                                    name: Text(
+                                        "src",
+                                    ),
+                                    value: Some(
+                                        Text(
+                                            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                                        ),
+                                    ),
+                                },
+                            ],
+                            content: [
+                                Text(
+                                    "Click this",
+                                ),
+                            ],
+                        },
+                    ),
+                    Block(
+                        CodeBlock {
+                            content: [
+                                Text(
+                                    "println!(\"test\");",
+                                ),
+                                Html(
+                                    HtmlTag {
+                                        tag: "p",
+                                        attributes: [],
+                                        content: [
+                                            Text(
+                                                "More Html",
+                                            ),
+                                        ],
+                                    },
+                                ),
+                                Text(
+                                    "\n    ",
+                                ),
+                            ],
+                        },
+                    ),
+                    Text(
+                        "\n",
+                    ),
+                ],
+            },
+        ),
+        Text(
+            "\n",
+        ),
+    ],
+}

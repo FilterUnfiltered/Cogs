@@ -34,7 +34,7 @@ pub fn parse_consecutive_proper_elements(input: &str) -> IResult<&str, Vec<Eleme
 
 fn parse_element(input: &str) -> IResult<&str, Element> {
     let (input, _) = multispace0(input)?;
-    alt((context("html", parse_html), context("code block", parse_code_block)))(input)
+    alt((parse_html, context("code block", parse_code_block)))(input)
 }
 
 fn parse_proper_element(input: &str) -> IResult<&str, Element> {

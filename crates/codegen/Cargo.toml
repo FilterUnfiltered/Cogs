@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 cogs_ast = { path = "../ast" }
 eyre.workspace = true
+intern-arc = "0.6.1"

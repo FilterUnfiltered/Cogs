@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "crates/ast",
+  "crates/ast", "crates/runtime",
   "crates/codegen",
   "crates/parser",
   "integrations/axum"

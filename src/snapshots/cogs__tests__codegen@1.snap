@@ -3,4 +3,17 @@ source: src/tests.rs
 expression: "cogs_codegen::generate(&ast).unwrap()"
 snapshot_kind: text
 ---
-not yet implemented
+pub struct Cog;
+
+impl cogs_runtime::Component for Cog {
+    type Props = ();
+    type Error = core::convert::Infallible;
+    fn render(&self, props: Self::Props) -> impl core::future::Future<Output = Result<String, Self::Error>> + core::marker::Send + '_ {
+        async move {
+            let x = 1;let __rendered = format!(r#"<{}><{}>{}</{}><{} {}="{}">{}{}</{}>{}{}</{}>{}"#, r#"body"#,r#"h1"#,r#"Yo."#,r#"h1"#,r#"a"#,r#"src"#,r#"https://www.youtube.com/watch?v=dQw4w9WgXcQ"#,r#"Click this"#,x,r#"a"#,{println!("test");
+format!(r#"<{}>{}</{}>"#, r#"p"#,r#"More Html"#,r#"p"#)
+},r#""#,r#"body"#,r#""#);
+            Ok(__rendered)
+        }
+    }
+}

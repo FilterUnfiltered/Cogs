@@ -5,6 +5,15 @@ snapshot_kind: text
 ---
 Component {
     elements: [
+        Block(
+            CodeBlock {
+                content: [
+                    Text(
+                        "let x = 1;\n",
+                    ),
+                ],
+            },
+        ),
         Html(
             HtmlTag {
                 tag: "body",
@@ -39,6 +48,15 @@ Component {
                             content: [
                                 Text(
                                     "Click this",
+                                ),
+                                Block(
+                                    CodeBlock {
+                                        content: [
+                                            Text(
+                                                "x",
+                                            ),
+                                        ],
+                                    },
                                 ),
                             ],
                         },

@@ -204,7 +204,7 @@ fn parse_inside_code_block(input: &str) -> IResult<&str, Vec<Element>> {
     debug!("Attempting inside code block {input}");
     let (input, elems) = parse_consecutive_proper_elements(input)?;
 
-    dbg!(&elems);
+    debug!(?elems, "parsed inside code block");
     Ok((input, elems))
 }
 

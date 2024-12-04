@@ -6,7 +6,9 @@ Cogs is a fullstack framework for building HATEOAS-based web applications using 
 
 ## Roadmap
 
-- [ ] Basic syntax and parsing
-- [ ] Code generation
+- [x] Basic syntax and parsing
+- [x] Code generation
+- [x] Basic axum example
+- [ ] Full axum integration
 - [ ] (?) Custom codegen based HTMX alternative
 - [ ] (?) WASM-based "Client Components"

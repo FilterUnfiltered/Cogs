@@ -1,0 +1,20 @@
+{ let random: u32 = rand::random(); }
+<html>
+  <head>
+    <title>cogs - small_to_console</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <p>This is an example of using <code style="margin: 0 1rem;">cogs::build</code> to generate a small html file.</p>
+
+    <p>The random number is: <h1>{random}</h1></p>
+
+    <footer>
+      <h4>Uses:</h4>
+      <ul>
+        <li><a href="https://github.com/filterunfiltered/cogs">cogs</a></li>
+        <li><a href="https://docs.rs/axum">axum</a></li>
+      </ul>
+    </footer>
+  </body>
+</html>

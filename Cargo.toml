@@ -4,7 +4,7 @@ members = [
   "crates/codegen",
   "crates/parser",
   "integrations/axum"
-]
+, "examples/small_to_console"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -12,9 +12,11 @@ eyre = "0.6"
 tracing = "0.1"
 
 # crates/
+cogs = { path = "." }
 cogs_ast = { path = "crates/ast" }
 cogs_codegen = { path = "crates/codegen" }
 cogs_parser = { path = "crates/parser" }
+cogs_runtime = { path = "crates/runtime" }
 
 [package]
 name = "cogs"
@@ -37,6 +39,7 @@ cogs_parser.workspace = true
 proptest = "1.5.0"
 insta = "1.41.1"
 ariadne = "0.5.0"
+pathdiff = "0.2.3"
 
 # Test optimization
 [profile.dev.package]

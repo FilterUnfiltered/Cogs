@@ -102,7 +102,7 @@ impl Expression {
             ast::Element::Html(_html) => {
                 panic!("ast::Element::Html should not be used as attribute value")
             } // this is the only case where expression is used so we can mention that in the panic message
-            ast::Element::Block(_block) => {
+            ast::Element::Block(block) => {
                 todo!("code blocks are not supported as attribute values until Expression is implemented in the parser")
             }
         }

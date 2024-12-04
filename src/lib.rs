@@ -2,8 +2,10 @@ mod diagnostics;
 #[cfg(test)]
 mod tests;
 
+use std::path::Path;
+
 use tracing::level_filters::LevelFilter;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::layer::SubscriberExt;
 
 #[doc(hidden)]
 pub fn parse_cog(input: String, file: &str) -> eyre::Result<cogs_ast::Component> {
@@ -57,6 +59,44 @@ pub fn init_tracing() -> eyre::Result<()> {
     #[cfg(not(feature = "tracy"))]
     {
         do_init(registry)?;
+    }
+
+    Ok(())
+}
+
+pub fn build(dir: impl AsRef<Path>) -> eyre::Result<()> {
+    let dir = dir.as_ref();
+    let out_dir = std::env::var_os("OUT_DIR").unwrap();
+
+    for entry in dir.read_dir()? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            build(&path)?;
+        } else if path.extension().map_or(false, |ext| ext == "cog") {
+            let _span = tracing::debug_span!("build cog", path = %path.display());
+            let contents = std::fs::read_to_string(&path)?;
+            let readable_path = if let Some(diffed) = std::env::current_dir()
+                .ok()
+                .and_then(|cwd| pathdiff::diff_paths(&path, &cwd))
+            {
+                diffed.display().to_string()
+            } else {
+                path.display().to_string()
+            };
+            let ast = parse_cog(contents, &readable_path)?;
+            tracing::debug!(?ast, "parsed");
+            let code = cogs_codegen::generate(&ast)?;
+            tracing::trace!(?code, "generated");
+            std::fs::write(
+                Path::new(&out_dir).join(
+                    pathdiff::diff_paths(&path, dir)
+                        .expect("path is not relative to dir for some reason")
+                        .with_extension("rs"),
+                ),
+                code,
+            )?;
+        }
     }
 
     Ok(())

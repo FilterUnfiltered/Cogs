@@ -5,7 +5,10 @@ pub trait Component {
     type Props;
     type Error;
 
-    fn render<'a>(&'a self, props: Self::Props) -> impl Future<Output = Result<String, Self::Error>> + Send + 'a;
+    fn render<'a>(
+        &'a self,
+        props: Self::Props,
+    ) -> impl Future<Output = Result<String, Self::Error>> + Send + 'a;
 }
 
 pub trait Render {
@@ -40,4 +43,16 @@ impl<T: Render> Render for Box<T> {
     fn render(&self) -> String {
         (**self).render()
     }
+}
+
+#[macro_export]
+macro_rules! cogs_mod {
+    ($(#[$attr:meta])* $vis:vis $modname:ident) => {
+        $crate::cogs_mod!($(#[$attr])* $vis $modname, concat!("/", stringify!($modname), ".rs"));
+    };
+
+    ($(#[$attr:meta])* $vis:vis $modname:ident, $source:expr) => {
+        #[rustfmt::skip]
+        $(#[$attr])* $vis mod $modname { include!(concat!(env!("OUT_DIR"), $source)); }
+    };
 }

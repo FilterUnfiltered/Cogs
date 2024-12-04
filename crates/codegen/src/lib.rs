@@ -16,8 +16,7 @@ pub fn generate(ast: &ast::Component) -> eyre::Result<String> {
         trees: Vec::new(),
         intern_str: StrInterner::new(),
     };
-    let mut elements = ast.elements.iter();
-    for element in elements {
+    for element in ast.elements.iter() {
         generator
             .trees
             .push(Tree::from_ast(element, &generator.intern_str));

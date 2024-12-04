@@ -1,10 +1,11 @@
 [package]
-name = "small_to_console"
+name = "small_axum"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 cogs_runtime.workspace = true
+cogs_axum.workspace = true
 axum = "0.7"
 tokio = { version = "1", features = ["full"] }
 rand = "0.8.5"

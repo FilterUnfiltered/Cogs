@@ -25,6 +25,7 @@ pub fn generate(ast: &ast::Component) -> eyre::Result<String> {
     let render = generator.to_format();
     Ok(format!(
         r#"
+#[derive(Default)]
 pub struct Cog;
 
 impl cogs_runtime::Component for Cog {{

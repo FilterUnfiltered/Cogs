@@ -197,6 +197,10 @@ version = "0.1.0"
 [[package]]
 name = "cogs_axum"
 version = "0.1.0"
+dependencies = [
+ "axum",
+ "cogs_runtime",
+]
 
 [[package]]
 name = "cogs_codegen"
@@ -989,11 +993,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1de1d4f81173b03af4c0cbed3c898f6bff5b870e4a7f5d6f4057d62a7a4b686e"
 
 [[package]]
-name = "small_to_console"
+name = "small_axum"
 version = "0.1.0"
 dependencies = [
  "axum",
  "cogs",
+ "cogs_axum",
  "cogs_runtime",
  "rand",
  "tokio",

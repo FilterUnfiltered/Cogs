@@ -1,10 +1,15 @@
 [workspace]
 members = [
-  "crates/ast", "crates/runtime",
+  # crates/
+  "crates/ast",
   "crates/codegen",
   "crates/parser",
-  "integrations/axum"
-, "examples/small_to_console"]
+  "crates/runtime",
+  # integrations/
+  "integrations/axum",
+  # examples/
+  "examples/small_axum",
+]
 resolver = "2"
 
 [workspace.dependencies]
@@ -17,6 +22,9 @@ cogs_ast = { path = "crates/ast" }
 cogs_codegen = { path = "crates/codegen" }
 cogs_parser = { path = "crates/parser" }
 cogs_runtime = { path = "crates/runtime" }
+
+# integrations/
+cogs_axum = { path = "integrations/axum" }
 
 [package]
 name = "cogs"

@@ -1,7 +1,7 @@
 use super::*;
 
 pub enum Expression {
-    Literal(InternedStr),
+    Text(InternedStr),
     Code(InternedStr),
 }
 
@@ -65,14 +65,11 @@ impl HtmlTag {
 
 impl HtmlAttribute {
     pub fn from_ast(value: &ast::Attribute, intern: &StrInterner) -> Self {
-        let ast::Element::Text(name) = &value.name else {
-            panic!("attribute name should be a string")
-        };
-        let name = intern.intern_ref(name);
+        let name = intern.intern_ref(&value.name);
         let value = value
             .value
             .as_ref()
-            .map(|v| Expression::from_ast(v, intern));
+            .map(|value| Expression::from_ast(value, intern));
         HtmlAttribute { name, value }
     }
 }
@@ -84,7 +81,7 @@ impl CodeBlock {
             .content
             .iter()
             .map(|elem| {
-                if matches!(elem, ast::Element::Html(_)) {
+                if matches!(elem, ast::CodeElement::Html(_)) {
                     has_html = true
                 };
                 CodeTree::from_ast(elem, intern)
@@ -95,28 +92,19 @@ impl CodeBlock {
 }
 
 impl Expression {
-    pub fn from_ast(value: &ast::Element, intern: &StrInterner) -> Self {
-        // TODO expression in parser
+    pub fn from_ast(value: &ast::Expression, intern: &StrInterner) -> Self {
         match value {
-            ast::Element::Text(text) => Expression::Literal(intern.intern_ref(text)),
-            ast::Element::Html(_html) => {
-                panic!("ast::Element::Html should not be used as attribute value")
-            } // this is the only case where expression is used so we can mention that in the panic message
-            ast::Element::Block(block) => {
-                todo!("code blocks are not supported as attribute values until Expression is implemented in the parser")
-            }
+            ast::Expression::Code(code) => Expression::Code(intern.intern_ref(code)),
+            ast::Expression::Text(text) => Expression::Text(intern.intern_ref(text)),
         }
     }
 }
 
 impl CodeTree {
-    pub fn from_ast(value: &ast::Element, intern: &StrInterner) -> Self {
+    pub fn from_ast(value: &ast::CodeElement, intern: &StrInterner) -> Self {
         match value {
-            ast::Element::Text(text) => CodeTree::Code(intern.intern_ref(text)),
-            ast::Element::Html(html) => CodeTree::HtmlTag(HtmlTag::from_ast(html, intern)),
-            ast::Element::Block(_) => {
-                panic!("nested code block detected (how the hell did the parser do this?)")
-            }
+            ast::CodeElement::Html(html) => CodeTree::HtmlTag(HtmlTag::from_ast(html, intern)),
+            ast::CodeElement::Code(code) => CodeTree::Code(intern.intern_ref(code)),
         }
     }
 }

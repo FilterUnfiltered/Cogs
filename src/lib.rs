@@ -16,7 +16,7 @@ pub fn parse_cog(input: String, file: &str) -> eyre::Result<cogs_ast::Component>
             if leftover.is_empty() {
                 Ok(ast)
             } else {
-                Err(eyre::eyre!("Not all input parsed, leftover: {leftover}"))
+                Err(eyre::eyre!("Not all input parsed, leftover: {leftover}; parsed ast: {ast:#?}"))
             }
         }
         Err(error) => {
